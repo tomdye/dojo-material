@@ -1,33 +1,37 @@
-# dojo-material
+# dojo-material POC
 
-This project was generated with the [Dojo CLI](https://github.com/dojo/cli) & [Dojo CLI create app command](https://github.com/dojo/cli-create-app).
+## Overview and Approach
 
-## Build
+This repo contains a POC implementation of `Button`, `Icon`, `FloatingLabel` and `TextField`
 
-Run `dojo build --mode dist` (the `mode` option defaults to `dist`) to create a production build for the project. The built artifacts will be stored in the `output/dist` directory.
+This POC uses the foundation / adapter approach similar to the official [material-components-web-react](https://github.com/material-components/material-components-web-react) implementation. Details of the foundations and adapters can be found [here](https://github.com/material-components/material-components-web/blob/master/docs/integrating-into-frameworks.md#the-advanced-approach-using-foundations-and-adapters).
 
-## Development Build
+Widgets utilising this approach must create the required html structure using the documented class names. Each complex component (such as `TextField` or `FloatingLabel`) requires a specific `Foundation` class to be instantiated and passed an `adapter`. The `adapter` provides the `Foundation` class with funcions such as `addClass`, `removeClass` etc and accessors such as `isFocused`, `value` etc... These provide a means for the foundation to respond to inputs and enact change onto the domnodes.
 
-Run `dojo build --mode dev` to create a development build for the project. The built artifacts will be stored in the `output/dev` directory.
+In some cases, such as `TextField`, the `Foundation` also requires access to the input `domNode`, this is achieved using a `meta`.
 
-## Development server
+## Theming and CSS
 
-Run `dojo build --mode dev --watch memory --serve` to create an in memory development build and start a development server with hot reload. By default the server runs on port `9999`, navigate to `http://localhost:9999/`.
+The `@material/mdc` project uses `SCSS` extensively and is compiled to `css` with bullet-proofed `css-variables`. This means that the `SCSS-variables` used within the styles are baked into the generated `css` with a `css-variable` directly afterwards as a fall back.
 
-To change the port of the development use the `--port` option.
+Due to this, we can override the compiled colours etc with our own `css-variables`. For example:
 
-## Running unit tests
+``` css
+/* button.css */
+@import '@material/button/dist/mdc.button.css';
 
-To run units tests in node only use `dojo test` which uses JIT (just in time) compilation.
+/* after importing the css, override the variables */
+:root {
+	--mdc-theme-primary: red;
+}
 
-To run the unit tests against built bundles, first the run a test build with `dojo build --mode test`. The build test artifacts are written to the `output/test` directory.
+/* the button will now render red */
+```
 
-Then `dojo test -c local` to run the projects unit tests. These tests are located in the `tests/unit` directory. The `--watch` options can be used with the test build which means that `dojo test` can be re-run without needing to re-build the full application each time.
+## Next steps
 
-## Running functional tests
-
-To run the functional tests, first the run a test build with `dojo build --mode test` and then `dojo test -f` to run the projects functional tests. These tests are located in the `tests/functional` directory.
-
-## Further help
-
-To get help for these commands and more, run `dojo` on the command line.
+- Complete `FloatingLabel` / `TextField`
+- Bring the components in line with `a11y` etc offerings in `@dojo/widgets`
+- Abstract out common parts such as base adapters
+- Create further components to complete the library: `Card` / `Select` etc...
+- Investigate feasibility of `ripple` implementation
