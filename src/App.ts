@@ -14,7 +14,11 @@ export class App extends WidgetBase {
 			w(Button, { outlined: true, onclick: () => { alert('hello') } }, ['im a button']),
 			w(Button, { raised: true, icon: w(Icon, { icon: 'edit' }) }, ['im a button']),
 			w(Icon, { icon: 'save' }),
-			w(TextField, {}, [ v('input', { value: 'hello world'})])
+			w(TextField, { label: 'Hello' }),
+			w(TextField, { label: 'outlined', outlined: true }),
+			w(TextField, { label: 'dense', dense: true }),
+			w(TextField, { label: 'leading', leadingIcon: 'save' }),
+			w(TextField, { label: 'trailing', trailingIcon: 'edit' })
 		];
 	}
 }
