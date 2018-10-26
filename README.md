@@ -1,5 +1,7 @@
 # dojo-material POC
 
+This repo contains a POC implementation of `Button`, `Icon`, `FloatingLabel` and `TextField` Material Components written in dojo using tsx syntax.
+
 ## Goals
 
 - To implement Dojo widgets adhering to the Material design spec
@@ -9,15 +11,13 @@
 
 ## Introduction
 
-This repo contains a POC implementation of `Button`, `Icon`, `FloatingLabel` and `TextField` written in dojo using tsx syntax.
-
-This POC uses the foundation / adapter approach similar to the official [material-components-web-react](https://github.com/material-components/material-components-web-react) implementation. Details of the foundations and adapters can be found [here](https://github.com/material-components/material-components-web/blob/master/docs/integrating-into-frameworks.md#the-advanced-approach-using-foundations-and-adapters).
+This POC uses the foundation / adapter approach similar to the official [material-components-web-react](https://github.com/material-components/material-components-web-react) implementation.
 
 Widgets utilising this approach must create the required html structure using the documented class names. Each complex component (such as `TextField` or `FloatingLabel`) requires a specific `Foundation` class to be instantiated and passed an `adapter`. The `adapter` provides the `Foundation` class with funcions such as `addClass`, `removeClass` etc and accessors such as `isFocused`, `value` etc... These provide a means for the foundation to respond to inputs and enact change onto the domnodes.
 
 ### Adapters
 
-The required mdc adpter varies from component to component. It is an object that provides functions to access and manipulate a component. For example it may have an `addClass` function that when called, should add a class to your widget.
+Adapters must be written for each component and provided to their `Foundation` on creation. The Adapter is an object used to provide functions and properties to the comonent foundation such that it can access and manipulate the domnodes you create. For example it may have an `addClass` function that when called adds a class to your widget.
 
 Details of the required adapters for each component are available in each component's documenttation.
 
