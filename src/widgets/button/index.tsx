@@ -10,7 +10,7 @@ export interface ButtonProperties {
 	disabled?: boolean;
 	icon?: any;
 	href?: string;
-	onclick?: () => void;
+	onClick?: () => void;
 }
 
 export class Button extends WidgetBase<ButtonProperties> {
@@ -23,7 +23,7 @@ export class Button extends WidgetBase<ButtonProperties> {
 			icon,
 			href,
 			disabled,
-			...otherProps
+			onClick
 		} = this.properties;
 
 		const classes = [
@@ -45,7 +45,7 @@ export class Button extends WidgetBase<ButtonProperties> {
 				classes={classes}
 				href={href}
 				disabled={disabled}
-				{ ...otherProps }
+				onclick={onClick}
 			>
 				{icon ? icon : null}
 				{this.children}

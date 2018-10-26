@@ -1,6 +1,6 @@
 # dojo-material POC
 
-## Overview and Approach
+## Overview
 
 This repo contains a POC implementation of `Button`, `Icon`, `FloatingLabel` and `TextField`
 
@@ -26,6 +26,125 @@ Due to this, we can override the compiled colours etc with our own `css-variable
 }
 
 /* the button will now render red */
+```
+
+## Implementation
+
+To create `@dojo/material` we should utilise the `foundations` and `adapters` as used within this POC repo.
+Material components rely upon one another, so some components are required in order to implement another; for example, `floating-label` is required by `text-field`.
+
+Material components appear to fall into two categories; simple widgets which require only correct dom elements and class names, and complex input widgets which require the use of `foundations` and `adapters`. These allow the underlying material interaction logic to add / remove classes from your components and show / hide labels / animations etc.
+
+The foundations files do not appear to have typings available so your dojo build may complain when you are using them. We may need to either write dummy / full typigns for these or set our tsconfig to allow js imports for this project.
+
+### Simple widgets
+
+Simple (non input) widgets such as `Button` and `Card` require only appropriate dom elements to be created with material classes applied. A complete description of the required dom and css classes can be found in the documentation for each component, button docs can be found [here](https://github.com/material-components/material-components-web/tree/master/packages/mdc-button).
+
+#### Using material css
+
+We can import the apropriate `material` css by creating an `index.css` file to sit alongside each of our components that imports the appropriate css from `node_modules`.
+
+``` css
+/* button/index.css */
+@import '~@material/button/dist/mdc.button.css';
+```
+
+We then import this css file into our component implementation
+
+```ts
+/* button/index.tsx */
+import './index.css';
+```
+
+In the case of `Button`, the base class is `mdc-button` with longer modifier classes such as `mdc-button--outlined`. As these have hypens etc in them and are outside of our source control we will be unable to use them with `css-modules` and thus the `index.css` file for each component will likely remain empty apart from the material import.
+
+Some more complex widgets contain a `constants` object that _could_ be used to import the css class names, but I have found these class names to be incomplete for some components and did not like the idea of hardcoding some classnames whilst importing others, so I simply hardcoded them all.
+
+### Complex widgets
+
+A complex widget is one that provides a `Foundation` class that contains the components interaction / class application logic. These need to be imported (no typings) and newed up with an `Adapter`. The `Adapter` is an object containing functions that allow the `Foundation` to manipulate and inspect your component.
+
+#### Adapters
+
+The most basic `Adapter` will have `addClass` / `removeClass` / `hasClass` functions. I've found these best implemented using a `ClassList` `Set` which is used to populate the `root` `classes` object when rendering the component.
+
+```ts
+/* text-field/index.tsx */
+private classList: new Set<string>();
+
+private _adapter = {
+	addClass: (className: string) => {
+		this.classList.add(className);
+		this.invalidate();
+	},
+	removeClass: (className: string) => {
+		this.classList.delete(className);
+		this.invalidate();
+	},
+	hasClass: (className: string) => {
+		return this.classList.has(className);
+	}
+};
+
+private _foundation = new MDCTextFieldFoundation(this._adapter, {});
+```
+
+The `Foundation` must be initialised and destroyed when the component is created and destroyed, this can be done using `onAttach` and `onDetach`.
+
+```ts
+protected onAttach() {
+	this._foundation.init();
+}
+
+protected onDetach() {
+	this._foundation.destroy();
+}
+```
+
+Following this approach, all you need do in the `render` function is `...this.classList` to add the foundation classes to your widget. Please see `text-field/index.tsx` for the full example.
+
+We could create a `BaseWidget` that contains a simple `adapter` as above which would reduce the boiler plate for each component and give us consistency across the library.
+
+#### Providing dom access to adapters
+
+Some adapters, such as the `text-field` adapter require access to the `input` dom node, we can achieve this using a simple `Meta`. I have implemented this as `Node.ts` within this example project as is used as such:
+
+```ts
+private _adapter {
+	// ...
+	getNativeInput: () => {
+		return this.meta(Node).get('input');
+	},
+	// ...
+}
+```
+
+#### Nesting components
+
+When nesting components, ie. an `Icon` trailing inside a `Text-Field`, material expects you to pass extra classes to the child widget. To implement this quickly I have allowed such widgets to accept a `classes` property that is mixed into their `root` classes at render time. If we were writing full-blown dojo widgets, we would use `ThemedMixin` and `extraClasses` but I thought this to be overkill at this point.
+
+```ts
+/* text-field/index.tsx */
+render() {
+	// ...
+	{trailingIcon ? <Icon classes={['mdc-text-field__icon']} icon={trailingIcon} /> : null}
+	// ...
+}
+
+/* icon/index.tsx */
+render() {
+	const {
+		icon,
+		classes = []
+	} = this.properties;
+
+	return (
+		<i classes={[ 'material-icons', ...classes ]}>
+			{icon}
+		</i>
+	);
+}
 ```
 
 ## Next steps
