@@ -1,11 +1,11 @@
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { tsx } from '@dojo/framework/widget-core/tsx';
-import MDCTextFieldFoundation from '@material/textfield/foundation';
 import Set from '@dojo/framework/shim/Set';
 import './index.css';
 import { Icon } from '../icon';
 import { FloatingLabel } from '../floating-label';
 import { Node } from '../Node';
+const { default: MDCTextFieldFoundation } = require('@material/textfield/foundation');
 
 export interface TextFieldProperties {
 	dense?: boolean;

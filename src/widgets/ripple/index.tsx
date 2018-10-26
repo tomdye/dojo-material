@@ -1,8 +1,7 @@
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { tsx } from '@dojo/framework/widget-core/tsx';
 import './index.css';
-
-import MDCRippleFoundation from '@material/ripple/foundation';
+const { default: MDCRippleFoundation } = require('@material/ripple/foundation');
 
 export class Ripple extends WidgetBase<any> {
 

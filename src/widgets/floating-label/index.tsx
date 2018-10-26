@@ -2,7 +2,7 @@ import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { tsx } from '@dojo/framework/widget-core/tsx';
 import './index.css';
 import Set from '@dojo/framework/shim/Set';
-import MDCFloatingLabelFoundation from '@material/floating-label/foundation';
+const { default: MDCFloatingLabelFoundation } = require('@material/floating-label/foundation');
 
 export interface FloatingLabelProperties {
 	float?: boolean;
