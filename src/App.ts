@@ -25,7 +25,7 @@ export class App extends WidgetBase {
 			w(Button, {}, ['im a button']),
 			w(Button, { href: '#abc' }, ['im a button']),
 			w(Button, { dense: true }, ['im a button']),
-			w(Button, { outlined: true, onclick: () => { alert('hello') } }, ['im a button']),
+			w(Button, { outlined: true, onClick: () => { alert('hello') } }, ['im a button']),
 			w(Button, { raised: true, icon: w(Icon, { icon: 'edit' }) }, ['im a button']),
 			w(Icon, { icon: 'save' }),
 			w(TextField, { value: this._textFieldState.plain, onInput: (value: string) => { this._onInput(value, 'plain') }, label: 'Hello' }),
