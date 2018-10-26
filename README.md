@@ -1,6 +1,13 @@
 # dojo-material POC
 
-## Overview
+## Goals
+
+- To implement Dojo widgets adhering to the Material design spec
+- To utilise the material components librarty provided by google.
+- To use the [mdc foundations and adapters](https://github.com/material-components/material-components-web/blob/master/docs/integrating-into-frameworks.md#the-advanced-approach-using-foundations-and-adapters) to apply appropiate classes and responses to user input and interaction.
+- To deliver easy to use, a11y compliant material widgets written in typescript.
+
+## Introduction
 
 This repo contains a POC implementation of `Button`, `Icon`, `FloatingLabel` and `TextField`
 
@@ -8,30 +15,26 @@ This POC uses the foundation / adapter approach similar to the official [materia
 
 Widgets utilising this approach must create the required html structure using the documented class names. Each complex component (such as `TextField` or `FloatingLabel`) requires a specific `Foundation` class to be instantiated and passed an `adapter`. The `adapter` provides the `Foundation` class with funcions such as `addClass`, `removeClass` etc and accessors such as `isFocused`, `value` etc... These provide a means for the foundation to respond to inputs and enact change onto the domnodes.
 
-In some cases, such as `TextField`, the `Foundation` also requires access to the input `domNode`, this is achieved using a `meta`.
+### Adapters
 
-## Theming and CSS
+The required mdc adpter varies from component to component. It is an object that provides functions to access and manipulate a component. For example it may have an `addClass` function that when called, should add a class to your widget.
 
-The `@material/mdc` project uses `SCSS` extensively and is compiled to `css` with bullet-proofed `css-variables`. This means that the `SCSS-variables` used within the styles are baked into the generated `css` with a `css-variable` directly afterwards as a fall back.
+Details of the required adapters for each component are available in each component's documenttation.
 
-Due to this, we can override the compiled colours etc with our own `css-variables`. For example:
+Without an adapter, a Foundation class would not be able to interact with your widget.
 
-``` css
-/* button.css */
-@import '@material/button/dist/mdc.button.css';
+### Foundations
 
-/* after importing the css, override the variables */
-:root {
-	--mdc-theme-primary: red;
-}
+Mdc Foundation classes exist for each of the more complex components which require changes / interactions to maniupulate the appearance / state of the widget.
+They essentially encapsulate the business / display logic of each component such that they can consistently be created in multiple languages.
 
-/* the button will now render red */
-```
+In some cases, such as `TextField`, the `Foundation` also requires access to the input `domNode`, this is achieved using a simple `meta`.
+
+Simple components such as `Button` do not require a Foundation.
 
 ## Implementation
 
 To create `@dojo/material` we should utilise the `foundations` and `adapters` as used within this POC repo.
-Material components rely upon one another, so some components are required in order to implement another; for example, `floating-label` is required by `text-field`.
 
 Material components appear to fall into two categories; simple widgets which require only correct dom elements and class names, and complex input widgets which require the use of `foundations` and `adapters`. These allow the underlying material interaction logic to add / remove classes from your components and show / hide labels / animations etc.
 
@@ -65,7 +68,7 @@ Some more complex widgets contain a `constants` object that _could_ be used to i
 
 A complex widget is one that provides a `Foundation` class that contains the components interaction / class application logic. These need to be imported (no typings) and newed up with an `Adapter`. The `Adapter` is an object containing functions that allow the `Foundation` to manipulate and inspect your component.
 
-#### Adapters
+#### Creating an Adapter
 
 The most basic `Adapter` will have `addClass` / `removeClass` / `hasClass` functions. I've found these best implemented using a `ClassList` `Set` which is used to populate the `root` `classes` object when rendering the component.
 
@@ -145,6 +148,24 @@ render() {
 		</i>
 	);
 }
+```
+
+## Theming and CSS
+
+The `@material/mdc` project uses `SCSS` extensively and is compiled to `css` with bullet-proofed `css-variables`. This means that the `SCSS-variables` used within the styles are baked into the generated `css` with a `css-variable` directly afterwards as a fall back.
+
+Due to this, we can override the compiled colours etc with our own `css-variables`. For example:
+
+``` css
+/* button.css */
+@import '@material/button/dist/mdc.button.css';
+
+/* after importing the css, override the variables */
+:root {
+	--mdc-theme-primary: red;
+}
+
+/* the button will now render red */
 ```
 
 ## Next steps
