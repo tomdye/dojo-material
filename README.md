@@ -3,13 +3,13 @@
 ## Goals
 
 - To implement Dojo widgets adhering to the Material design spec
-- To utilise the material components librarty provided by google.
-- To use the [mdc foundations and adapters](https://github.com/material-components/material-components-web/blob/master/docs/integrating-into-frameworks.md#the-advanced-approach-using-foundations-and-adapters) to apply appropiate classes and responses to user input and interaction.
+- To utilise the material design components (MDC) librarty provided by google.
+- To use the [MDC foundations and adapters](https://github.com/material-components/material-components-web/blob/master/docs/integrating-into-frameworks.md#the-advanced-approach-using-foundations-and-adapters) to apply appropiate classes and responses to user input and interaction.
 - To deliver easy to use, a11y compliant material widgets written in typescript.
 
 ## Introduction
 
-This repo contains a POC implementation of `Button`, `Icon`, `FloatingLabel` and `TextField`
+This repo contains a POC implementation of `Button`, `Icon`, `FloatingLabel` and `TextField` written in dojo using tsx syntax.
 
 This POC uses the foundation / adapter approach similar to the official [material-components-web-react](https://github.com/material-components/material-components-web-react) implementation. Details of the foundations and adapters can be found [here](https://github.com/material-components/material-components-web/blob/master/docs/integrating-into-frameworks.md#the-advanced-approach-using-foundations-and-adapters).
 
@@ -150,6 +150,28 @@ render() {
 }
 ```
 
+### Ripple components
+
+Ripple is a visual effect used throughout the material component library to animate ui elements in response to user interaction. The mdc react implementation utilises a HOC to achieve this by wrapping each component that requires a ripple effect before rendering it.
+
+I have started to investigate how we should do this in our Dojo material library and believe it could be done using an outer widget that `decorate`s it's children. This should be done within the widget so the user does not have to manually create a `Ripple` widget.
+
+```ts
+render() {
+	// ...
+	if (this.properties.ripple) {
+		return (
+			<Ripple target="targetKey">
+			   { myWidgetRoot }
+			</Ripple>
+		);
+	} else {
+		return myWidgetRoot;
+	}
+}
+
+```
+
 ## Theming and CSS
 
 The `@material/mdc` project uses `SCSS` extensively and is compiled to `css` with bullet-proofed `css-variables`. This means that the `SCSS-variables` used within the styles are baked into the generated `css` with a `css-variable` directly afterwards as a fall back.
@@ -168,9 +190,12 @@ Due to this, we can override the compiled colours etc with our own `css-variable
 /* the button will now render red */
 ```
 
+## Bulding the library
+
+Currently this POC is built as an app using the `dojo build app` cli command. For this to be a published package that developers can install and use it will need to have a build pipeline created similar to that of `@dojo/widgets`.
+
 ## Next steps
 
-- Complete `FloatingLabel` / `TextField`
 - Bring the components in line with `a11y` etc offerings in `@dojo/widgets`
 - Abstract out common parts such as base adapters
 - Create further components to complete the library: `Card` / `Select` etc...
