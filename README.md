@@ -1,4 +1,4 @@
-# dojo-material POC
+# Dojo Material Components POC and Approach
 
 This repo contains a POC implementation of `Button`, `Icon`, `FloatingLabel` and `TextField` Material Components written in dojo using tsx syntax.
 
