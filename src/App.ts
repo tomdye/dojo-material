@@ -5,6 +5,20 @@ import { Icon } from './widgets/icon';
 import { TextField } from './widgets/text-field';
 
 export class App extends WidgetBase {
+
+	private _textFieldState: { [key: string]: string } = {
+		plain: '',
+		outlined: '',
+		dense: '',
+		leading: '',
+		trailing: ''
+	};
+
+	private _onInput(value: string, key: string) {
+		this._textFieldState[key as any] = value;
+		this.invalidate();
+	}
+
 	protected render() {
 		return [
 			v('h1', [ 'HELLO WORLD' ]),
@@ -14,11 +28,11 @@ export class App extends WidgetBase {
 			w(Button, { outlined: true, onclick: () => { alert('hello') } }, ['im a button']),
 			w(Button, { raised: true, icon: w(Icon, { icon: 'edit' }) }, ['im a button']),
 			w(Icon, { icon: 'save' }),
-			w(TextField, { label: 'Hello' }),
-			w(TextField, { label: 'outlined', outlined: true }),
-			w(TextField, { label: 'dense', dense: true }),
-			w(TextField, { label: 'leading', leadingIcon: 'save' }),
-			w(TextField, { label: 'trailing', trailingIcon: 'edit' })
+			w(TextField, { value: this._textFieldState.plain, onInput: (value: string) => { this._onInput(value, 'plain') }, label: 'Hello' }),
+			w(TextField, { value: this._textFieldState.outlined, onInput: (value: string) => { this._onInput(value, 'outlined') }, label: 'outlined', outlined: true }),
+			w(TextField, { value: this._textFieldState.dense, onInput: (value: string) => { this._onInput(value, 'dense') }, label: 'dense', dense: true }),
+			w(TextField, { value: this._textFieldState.leading, onInput: (value: string) => { this._onInput(value, 'leading') }, label: 'leading', leadingIcon: 'save' }),
+			w(TextField, { value: this._textFieldState.trailing, onInput: (value: string) => { this._onInput(value, 'trailing') }, label: 'trailing', trailingIcon: 'edit' })
 		];
 	}
 }

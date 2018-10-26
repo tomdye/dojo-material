@@ -1,7 +1,8 @@
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { tsx } from '@dojo/framework/widget-core/tsx';
 import './index.css';
-import {MDCFloatingLabelFoundation} from '@material/floating-label/dist/mdc.floatingLabel';
+import Set from '@dojo/framework/shim/Set';
+import MDCFloatingLabelFoundation from '@material/floating-label/foundation';
 
 export interface FloatingLabelProperties {
 	float?: boolean;
@@ -9,10 +10,22 @@ export interface FloatingLabelProperties {
 
 export class FloatingLabel extends WidgetBase<FloatingLabelProperties> {
 
-	private _foundation = new MDCFloatingLabelFoundation(this.adapter);
-	private state = {
+	private _state = {
 		classList: new Set<string>()
 	};
+
+	private _adapter = {
+		addClass: (className: string) => {
+			this._state.classList.add(className);
+			this.invalidate();
+		},
+		removeClass: (className: string) => {
+			this._state.classList.delete(className);
+			this.invalidate();
+		}
+	}
+
+	private _foundation = new MDCFloatingLabelFoundation(this._adapter);
 
 	onAttach() {
 		this._foundation.init();
@@ -26,36 +39,21 @@ export class FloatingLabel extends WidgetBase<FloatingLabelProperties> {
 		this._foundation.destroy();
 	}
 
-	get adapter() {
-		return {
-			addClass: (className: string) => {
-				this.state.classList.add(className);
-				this.invalidate();
-			},
-			removeClass: (className: string) => {
-				this.state.classList.delete(className);
-				this.invalidate();
-			}
-		};
-	}
-
 	render() {
 		const {
-			float,
-			...otherProps
+			float
 		} = this.properties;
 
 		this._foundation && this._foundation.float(float);
 
-		const classes: any = [
+		const classes: (string|undefined)[] = [
 			'mdc-floating-label',
-			...Array.from(this.state.classList)
+			...this._state.classList
 		];
 
 		return (
 			<label
 				classes={classes}
-				{...otherProps}
 			>
 				{this.children}
 			</label>

@@ -1,139 +1,120 @@
 import WidgetBase from '@dojo/framework/widget-core/WidgetBase';
 import { tsx } from '@dojo/framework/widget-core/tsx';
-import { Base } from '@dojo/framework/widget-core/meta/Base';
-import {MDCTextFieldFoundation} from '@material/textfield/dist/mdc.textfield';
+import MDCTextFieldFoundation from '@material/textfield/foundation';
+import Set from '@dojo/framework/shim/Set';
 import './index.css';
 import { Icon } from '../icon';
 import { FloatingLabel } from '../floating-label';
-
-export class Get extends Base {
-	public get(key: string | number): any {
-		const node = this.getNode(key);
-		return node;
-	}
-}
+import { Node } from '../Node';
 
 export interface TextFieldProperties {
 	dense?: boolean;
-	// floatingLabelClassName?: string;
 	fullWidth?: boolean;
 	helperText?: any;
 	isRtl?: boolean;
 	label?: string;
 	leadingIcon?: any;
-	// lineRippleClassName?: string;
-	// notchedOutlineClassName?: string;
 	outlined?: boolean;
 	textarea?: boolean;
 	trailingIcon?: any;
 	disabled?: boolean;
+	value: string;
+	onInput(value: string): void;
 }
 
 export class TextField extends WidgetBase<TextFieldProperties> {
 
-	private _foundation = new MDCTextFieldFoundation(this.adapter, {});
-	private state = {
+	private _state = {
 		classList: new Set<string>(),
 		isFocused: false,
-		labelIsFloated: false,
-		value: ''
+		labelIsFloated: false
 	};
+
+	private _adapter = {
+		addClass: (className: string) => {
+			this._state.classList.add(className);
+			this.invalidate();
+		},
+		removeClass: (className: string) => {
+			this._state.classList.delete(className);
+			this.invalidate();
+		},
+		hasClass: (className: string) => {
+			return this._state.classList.has(className);
+		},
+		isFocused: () => {
+			return this._state.isFocused;
+		},
+		getNativeInput: () => {
+			return this.meta(Node).get('input');
+		},
+		floatLabel: (labelIsFloated: boolean) => {
+			this._state = {
+				...this._state,
+				labelIsFloated
+			};
+			this.invalidate();
+		},
+		hasLabel: () => !!this.properties.label
+	}
+
+	private _foundation = new MDCTextFieldFoundation(this._adapter, {});
 
 	protected onAttach() {
 		this._foundation.init();
 	}
 
-	get labelAdapter() {
-		return {
-			floatLabel: (labelIsFloated: boolean) => {
-				console.log('float label called');
-				this.state = {
-					...this.state,
-					labelIsFloated
-				};
-				this.invalidate();
-			},
-			hasLabel: () => !!this.properties.label
-		};
-	}
-
-
-	get adapter() {
-		return {
-			addClass: (className: string) => {
-				this.state.classList.add(className);
-				this.invalidate();
-			},
-			removeClass: (className: string) => {
-				this.state.classList.delete(className);
-				this.invalidate();
-			},
-			hasClass: (className: string) => {
-				return this.state.classList.has(className);
-			},
-			isFocused: () => {
-				console.log('here');
-				return this.state.isFocused;
-			},
-			...this.labelAdapter,
-			...this.inputAdapter
-		};
-	}
-
-	get inputAdapter() {
-		return {
-			getNativeInput: () => {
-				return this.meta(Get).get('input');
-			}
-		}
-	}
-
-	private _renderIcon(icon: string) {
-		// const {disabled} = this.state;
-		// Toggling disabled will trigger icon.foundation.setDisabled()
-		return (
-			<Icon classes={['mdc-text-field__icon']} icon={icon} />
-		);
+	protected onDetach() {
+		this._foundation.destroy();
 	}
 
 	private renderLabel() {
 		const {label} = this.properties;
-		// const {inputId} = this.state;
+
 		return (
-			<FloatingLabel
-			float={this.state.labelIsFloated}
-			// handleWidthChange={
-			//	 (labelWidth) => this.setState({labelWidth})}
-			// ref={this.floatingLabelElement}
-			// htmlFor={inputId}
-			>
-			{label}
+			<FloatingLabel float={this._state.labelIsFloated}>
+				{label}
 			</FloatingLabel>
 		);
+	}
+
+	private _onFocus() {
+		this._state = {
+			...this._state,
+			isFocused: true
+		};
+		this.invalidate();
+	}
+
+	private _onInput(e: Event) {
+		const value = (e.target as HTMLInputElement).value;
+		this.properties.onInput && this.properties.onInput(value);
+	}
+
+	private _onClick() {
+		this._foundation && this._foundation.handleTextFieldInteraction()
+	}
+
+	private _onKeyDown() {
+		this._foundation && this._foundation.handleTextFieldInteraction()
 	}
 
 	protected render() {
 		const {
 			label,
 			fullWidth,
-			helperText,
 			outlined,
 			leadingIcon,
 			trailingIcon,
 			textarea,
 			dense,
-			disabled
+			disabled,
+			value = ''
 		} = this.properties;
 
-	// 	const {classList, disabled} = this.state;
-		// const {className, dense, outlined, fullWidth, textarea, trailingIcon, leadingIcon} = this.props;
-		// return classnames(, Array.from(classList), className, {
-
-		// });
-
-		const classes: any = [
+		const classes: (string|undefined)[] = [
 			'mdc-text-field',
-			...Array.from(this.state.classList),
+			...this._state.classList,
 			outlined ? 'mdc-text-field--outlined' : undefined,
 			textarea ? 'mdc-text-field--textarea' : undefined,
 			fullWidth ? 'mdc-text-field--fullwidth' : undefined,
@@ -143,41 +124,23 @@ export class TextField extends WidgetBase<TextFieldProperties> {
 			dense ? 'mdc-text-field--dense' : undefined
 		];
 
-		this._foundation.setValue(this.state.value);
+		this._foundation.setValue(value);
 
 		return (
 			<div
-			// {...this.otherProps}
-			classes={classes}
-
-			key='text-field-container'
+				classes={classes}
+				key='text-field-container'
 			>
-				{leadingIcon ? this._renderIcon(leadingIcon) : null}
-				<input key="input" classes="mdc-text-field__input" onfocus={
-					() => {
-						this.state = {
-							...this.state,
-							isFocused: true
-						};
-						console.log('focused');
-						this.invalidate();
-					}
-				} oninput={
-					(e: any) => {
-
-						this.state = {
-							...this.state,
-							value: e.target.value
-						};
-						console.log('value changed');
-						this.invalidate();
-					}
-				} onclick={() => this._foundation && this._foundation.handleTextFieldInteraction()}
-				onkeydown={() => this._foundation && this._foundation.handleTextFieldInteraction()}/>
+				{leadingIcon ? <Icon classes={['mdc-text-field__icon']} icon={leadingIcon} /> : null}
+				<input key="input"
+					classes="mdc-text-field__input"
+					onfocus={this._onFocus}
+					oninput={this._onInput }
+					onclick={this._onClick}
+					onkeydown={this._onKeyDown}
+				/>
 				{label && !fullWidth ? this.renderLabel() : null}
-				{/* {outlined ? this.renderNotchedOutline() : null} */}
-				{/* {!fullWidth && !textarea && !outlined ? this.renderLineRipple() : null} */}
-				{trailingIcon ? this._renderIcon(trailingIcon) : null}
+				{trailingIcon ? <Icon classes={['mdc-text-field__icon']} icon={trailingIcon} /> : null}
 			</div>
 		);
 	}
