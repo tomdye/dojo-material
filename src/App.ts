@@ -3,6 +3,12 @@ import { v, w } from '@dojo/framework/widget-core/d';
 import { Button } from './widgets/button';
 import { Icon } from './widgets/icon';
 import { TextField } from './widgets/text-field';
+import TextInput from '@dojo/widgets/text-input';
+import * as inputTheme from './inputTheme.m.css';
+
+const theme = {
+	'@dojo/widgets/text-input': inputTheme
+};
 
 export class App extends WidgetBase {
 
@@ -28,6 +34,7 @@ export class App extends WidgetBase {
 			w(Button, { outlined: true, onClick: () => { alert('hello') } }, ['im a button']),
 			w(Button, { raised: true, icon: w(Icon, { icon: 'edit' }) }, ['im a button']),
 			w(Icon, { icon: 'save' }),
+			w(TextInput, { theme, value: this._textFieldState.dojo, onInput: (value: string) => { this._onInput(value, 'dojo')}, label: 'dojo' }),
 			w(TextField, { value: this._textFieldState.plain, onInput: (value: string) => { this._onInput(value, 'plain') }, label: 'Hello' }),
 			w(TextField, { value: this._textFieldState.outlined, onInput: (value: string) => { this._onInput(value, 'outlined') }, label: 'outlined', outlined: true }),
 			w(TextField, { value: this._textFieldState.dense, onInput: (value: string) => { this._onInput(value, 'dense') }, label: 'dense', dense: true }),

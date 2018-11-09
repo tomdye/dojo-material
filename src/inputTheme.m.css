@@ -1,0 +1,19 @@
+.root {
+	composes: mdc-text-field from '@material/textfield/dist/mdc.textfield.css';
+}
+
+.input {
+	composes: mdc-text-field__input from '@material/textfield/dist/mdc.textfield.css';
+}
+
+.label {
+	composes: mdc-floating-label from '@material/textfield/dist/mdc.textfield.css';
+}
+
+.hasValue {
+	composes: mdc-floating-label--float-above from '@material/textfield/dist/mdc.textfield.css';
+}
+
+:root {
+	--mdc-theme-primary: green;
+}
